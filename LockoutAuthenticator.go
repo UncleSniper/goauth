@@ -1,7 +1,7 @@
 package goauth
 
 type LockoutAuthenticator[ContextT any] struct {
-	ErrorFactory func() AuthError
+	ErrorFactory func() error
 }
 
 func StaticErrorFactory(theError AuthError) func() AuthError {
