@@ -1,7 +1,7 @@
 package goauth
 
 import (
-	//"os/user"
+	"os/user"
 )
 
 type OSAuthFlags uint
@@ -9,8 +9,6 @@ type OSAuthFlags uint
 const (
 	UXAUTHFL_IGNORE_USER_MAPPER_ON_UNIX OSAuthFlags = (1 << iota)
 	UXAUTHFL_IGNORE_GROUP_MAPPER_ON_UNIX
-	UXAUTHFL_IGNORE_USER_MAPPER_ON_NON_UNIX
-	UXAUTHFL_IGNORE_GROUP_MAPPER_ON_NON_UNIX
 	UXAUTHFL_SKIP_USER_CHECK
 	UXAUTHFL_SKIP_GROUP_CHECK
 	UXAUTHFL_SKIP_AUXILIARY_GROUPS_CHECK
@@ -26,10 +24,10 @@ const (
 	UXAUTHFL_DISALLOW_GROUP_BY_NAME
 	UXAUTHFL_ALLOW_FAILED_GROUP
 	UXAUTHFL_ALLOW_FAILED_AUXILIARY_GROUP
+	UXAUTHFL_USER_NAME_BEFORE_ID
+	UXAUTHFL_GROUP_NAME_BEFORE_ID
 	UXAUTHFL_IGNORE_MAPPERS_ON_UNIX OSAuthFlags = UXAUTHFL_IGNORE_USER_MAPPER_ON_UNIX |
 			UXAUTHFL_IGNORE_GROUP_MAPPER_ON_UNIX
-	UXAUTHFL_IGNORE_MAPPERS_ON_NON_UNIX OSAuthFlags = UXAUTHFL_IGNORE_USER_MAPPER_ON_NON_UNIX |
-			UXAUTHFL_IGNORE_GROUP_MAPPER_ON_NON_UNIX
 	UXAUTHFL_REJECT_CREDENTIAL_IDS OSAuthFlags = UXAUTHFL_REJECT_CREDENTIAL_OS_USER_ID |
 			UXAUTHFL_REJECT_CREDENTIAL_USER_ID
 	UXAUTHFL_REJECT_MAPPED_IDS OSAuthFlags = UXAUTHFL_REJECT_MAPPED_OS_USER_ID | UXAUTHFL_REJECT_MAPPED_USER_ID
@@ -517,6 +515,57 @@ func(auth *OSAuthenticator[
 	}
 	if result == nil && err == nil {
 		result = &NullPrincipal{}
+	}
+	return
+}
+
+func MapGenericUserOrGroupToGeneric[ContextT any](
+	flags OSAuthFlags,
+	context ContextT,
+	uidOrGid string,
+) (mapped string, err error) {
+	mapped = uidOrGid
+	return
+}
+
+func LookupGenericUser[ContextT any, CredentialUidT any](
+	flags OSAuthFlags,
+	context ContextT,
+	credUID CredentialUidT,
+	mappedUID string,
+	skippedPhases int,
+) (internedUID *user.User, err error) {
+	if (flags & UXAUTHFL_USER_NAME_BEFORE_ID) != 0 {
+		internedUID, err = user.Lookup(mappedUID)
+		if internedUID == nil {
+			internedUID, err = user.LookupId(mappedUID)
+		}
+	} else {
+		internedUID, err = user.LookupId(mappedUID)
+		if internedUID == nil {
+			internedUID, err = user.Lookup(mappedUID)
+		}
+	}
+	return
+}
+
+func LookupGenericGroup[ContextT any, CredentialGidT any](
+	flags OSAuthFlags,
+	context ContextT,
+	credGID CredentialGidT,
+	mappedGID string,
+	skippedPhases int,
+) (internedGID *user.Group, err error) {
+	if (flags & UXAUTHFL_GROUP_NAME_BEFORE_ID) != 0 {
+		internedGID, err = user.LookupGroup(mappedGID)
+		if internedGID == nil {
+			internedGID, err = user.LookupGroupId(mappedGID)
+		}
+	} else {
+		internedGID, err = user.LookupGroupId(mappedGID)
+		if internedGID == nil {
+			internedGID, err = user.LookupGroup(mappedGID)
+		}
 	}
 	return
 }
