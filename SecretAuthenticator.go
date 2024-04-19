@@ -163,3 +163,5 @@ func(auth *SecretAuthenticator[ContextT]) Authenticate(
 	}
 	return child(auth.Flags, context, credentials)
 }
+
+var _ Authenticator[int] = &SecretAuthenticator[int]{}

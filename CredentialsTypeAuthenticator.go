@@ -58,3 +58,5 @@ func(auth *CredentialsTypeAuthenticator[ContextT, CredentialsT]) Authenticate(
 	}
 	return
 }
+
+var _ Authenticator[int] = &CredentialsTypeAuthenticator[int, *PasswordCredentials]{}

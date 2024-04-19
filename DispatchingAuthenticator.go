@@ -77,3 +77,5 @@ func(auth *DispatchingAuthenticator[ContextT]) Authenticate(
 	}
 	return child(auth.Flags, context, credentials)
 }
+
+var _ Authenticator[int] = &DispatchingAuthenticator[int]{}

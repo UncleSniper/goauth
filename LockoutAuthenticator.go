@@ -29,3 +29,5 @@ func(err LockoutAuthError) Error() string {
 func(err LockoutAuthError) IsUserToBlame() bool {
 	return false
 }
+
+var _ Authenticator[int] = &LockoutAuthenticator[int]{}

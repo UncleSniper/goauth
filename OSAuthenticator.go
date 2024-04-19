@@ -569,3 +569,5 @@ func LookupGenericGroup[ContextT any, CredentialGidT any](
 	}
 	return
 }
+
+var _ Authenticator[int] = &OSAuthenticator[int, uint32, uint64, float32, float64, bool, string]{}
