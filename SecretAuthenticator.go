@@ -62,7 +62,7 @@ func SecretTypeName(id SecretType) (name string, ok bool) {
 	return
 }
 
-type SecretAuthFlags uint
+type SecretAuthFlags uint32
 
 const (
 	SECAUTHFL_SKIP_PASSWORD SecretAuthFlags = (1 << iota)

@@ -4,7 +4,7 @@ import (
 	"os/user"
 )
 
-type OSAuthFlags uint
+type OSAuthFlags uint32
 
 const (
 	UXAUTHFL_IGNORE_USER_MAPPER_ON_UNIX OSAuthFlags = (1 << iota)
