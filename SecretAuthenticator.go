@@ -69,6 +69,8 @@ const (
 	SECAUTHFL_SKIP_API_KEY
 	SECAUTHFL_SKIP_CALLBACK
 	SECAUTHFL_SKIP_MAP
+	SECAUTHFL_DISALLOW_GENERIC_PROTOCOL
+	SECAUTHFL_DISALLOW_GENERIC_DOMAIN
 )
 
 type SecretAuthenticator[ContextT any] struct {
@@ -136,14 +138,14 @@ func(auth *SecretAuthenticator[ContextT]) Authenticate(
 		proto := credentials.Protocol()
 		if proto != UNKNOWN_PROTO_ID {
 			byProto, ok := auth.children[proto]
-			if !ok {
+			if !ok && (auth.Flags & SECAUTHFL_DISALLOW_GENERIC_PROTOCOL) == 0 {
 				byProto, ok = auth.children[UNKNOWN_PROTO_ID]
 			}
 			if ok && byProto != nil {
 				domain := credentials.Domain()
 				if domain != NOWHERE_DOMAIN_ID {
 					child, ok = byProto[domain]
-					if !ok {
+					if !ok && (auth.Flags & SECAUTHFL_DISALLOW_GENERIC_DOMAIN) == 0 {
 						child, ok = byProto[NOWHERE_DOMAIN_ID]
 					}
 					if !ok {
