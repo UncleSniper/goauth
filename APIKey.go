@@ -1,8 +1,12 @@
 package goauth
 
-type APIKey struct {
+type APIKeyCredentials struct {
 	CredentialsBase
 	Key string
 }
 
-var _ Credentials = &APIKey{}
+func(cred *APIKeyCredentials) Secret() string {
+	return cred.Key
+}
+
+var _ SecretCredentials = &APIKeyCredentials{}
